@@ -31,7 +31,7 @@ public class Main {
         bookDao.findById(2L);
         book1.setTitle("Updated Book 1");
         book1.setPrice(BigDecimal.valueOf(455));
-        book1.setId(4L);
+        book1.setId(1L);
         bookDao.update(book1);
         bookDao.deleteById(3L);
     }
