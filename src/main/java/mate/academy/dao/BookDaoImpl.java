@@ -51,13 +51,7 @@ public class BookDaoImpl implements BookDao {
             ps.setLong(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    String title = rs.getString("title");
-                    BigDecimal price = rs.getObject("price", BigDecimal.class);
-                    Book b = new Book();
-                    b.setId(id);
-                    b.setTitle(title);
-                    b.setPrice(price);
-                    return Optional.of(b);
+                    return Optional.of(mapToBook(rs));
                 }
             }
         } catch (SQLException e) {
@@ -65,6 +59,17 @@ public class BookDaoImpl implements BookDao {
                     "Could not find Book with id " + id, e);
         }
         return Optional.empty();
+    }
+
+    private Book mapToBook(ResultSet rs) throws SQLException {
+        Long id = rs.getObject("id", Long.class);
+        String title = rs.getString("title");
+        BigDecimal price = rs.getObject("price", BigDecimal.class);
+        Book b = new Book();
+        b.setId(id);
+        b.setTitle(title);
+        b.setPrice(price);
+        return b;
     }
 
     @Override
@@ -75,14 +80,7 @@ public class BookDaoImpl implements BookDao {
                 PreparedStatement ps = conn.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                Long id = rs.getObject("id", Long.class);
-                String title = rs.getString("title");
-                BigDecimal price = rs.getObject("price", BigDecimal.class);
-                Book b = new Book();
-                b.setId(id);
-                b.setTitle(title);
-                b.setPrice(price);
-                res.add(b);
+                res.add(mapToBook(rs));
             }
         } catch (SQLException e) {
             throw new DataProcessingException(
@@ -102,7 +100,7 @@ public class BookDaoImpl implements BookDao {
             int affectedRows = ps.executeUpdate();
             if (affectedRows < 1) {
                 throw new RuntimeException(
-                        "Expected to insert at least one row, but inserted 0 rows.");
+                        "Expected to update at least one row, but updated 0 rows.");
             }
         } catch (SQLException e) {
             throw new DataProcessingException(
